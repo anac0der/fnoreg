@@ -1,0 +1,116 @@
+{
+  "dataset_size": [
+    481
+  ],
+  "downsample_size": [
+    1024
+  ],
+  "patch_size": [
+    256
+  ],
+  "model_name": "fouriernet",
+  "model_config": [
+    {
+      "ffcunet": {
+        "in_ch": 2,
+        "start_ch": 32,
+        "out_ch": 2,
+        "fu_kernel": 1,
+        "kernel_size": 3,
+        "enc_blocks": 4,
+        "latent_space_blocks": 1,
+        "enc_res_blocks": 2,
+        "start_alpha": 0.0,
+        "end_alpha": 0.0,
+        "skip_conn": true
+      },
+      "deepunet": {
+        "in_ch": 2,
+        "start_ch": 32,
+        "out_ch": 2,
+        "enc_blocks": 4,
+        "latent_space_blocks": 0,
+        "enc_res_blocks": 1,
+        "skip_conn": true
+      },
+      "ffcae": {
+        "in_ch": 2,
+        "start_ch": 32,
+        "out_ch": 2,
+        "fu_kernel": 1,
+        "kernel_size": 3,
+        "enc_blocks": 2,
+        "latent_space_blocks": 12,
+        "alpha": 0.5
+      },
+      "fno": {
+        "n_modes": [
+          64,
+          64
+        ],
+        "in_channels": 2,
+        "out_channels": 2,
+        "hidden_channels": 32,
+        "projection_channels": 64,
+        "n_layers": 12,
+        "factorization": "tucker",
+        "rank": 0.42
+      },
+      "fnoreg": {
+        "n_modes": [
+          64,
+          64
+        ],
+        "in_channels": 2,
+        "out_channels": 2,
+        "hidden_channels": 32,
+        "projection_channels": 64,
+        "n_layers": 12,
+        "factorization": "tucker",
+        "rank": 0.42,
+        "alpha": 1
+      },
+      "fouriernet": {
+        "in_channel": 2,
+        "start_channel": 16,
+        "n_classes": 2,
+        "patch_size": [
+          256,
+          256
+        ]
+      },
+      "symnet": {
+        "in_channel": 2,
+        "start_channel": 16,
+        "n_classes": 2
+      }
+    }
+  ],
+  "train_config": [
+    {
+      "lr": 1e-4,
+      "reg_param": 0.01,
+      "boundary_param": 0,
+      "batch_size": 8,
+      "epochs": 80,
+      "lr_scheduler": false,
+      "lr_scheduler_params": {
+        "step": {
+          "step_size": 30,
+          "gamma": 0.2
+        }
+      }
+    }
+  ],
+  "exp_config": [
+    {
+      "description": "training DeepUnet2d on 0.5x resolution"
+    }
+  ],
+  "dataset_path": "/data/datasets/060523_Affine_registered_4096_png",
+  "landmarks_path": "/data/datasets/060523_Affine_registered_4096",
+  "weights_path": "/data/experiments_fourier",
+  "dataset_csv_path": "/data/dataset_medium.csv",
+  "oasis_path": "/data/datasets/oasis_1_2d",
+  "oasis_folders_path": "/data/datasets/oasis_1_2d/subjects.txt"
+}
