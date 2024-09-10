@@ -8,16 +8,11 @@ import os
 from models import *
 from tqdm import tqdm
 import time
-from fourier_models import FFCUnet, FFCAE
 from fno import MyFNO, FNOReg
 import argparse
 import json
 from plot_utils import plotter, dft_amplitude
 import cv2
-import matplotlib.pyplot as plt
-from neuralop.utils import count_params
-from torchsummary import summary
-import utils
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu_num', type=int,  default=0, help='GPU number')
@@ -49,19 +44,13 @@ with open(os.path.join(exp_folder_name, 'metadata.json'), "r") as f:
 exp_metadata = json.loads(exp_metadata_str)
 model_cfg = exp_metadata['model_config']
 model_name = exp_metadata['model_name']
-if model_name == 'ffcunet':
-    model = FFCUnet(model_cfg).to(device)
-elif model_name == 'fno':
+if model_name == 'fno':
     model = MyFNO(model_cfg).to(device)
 elif model_name == 'convfno':
     model = FNOReg(model_cfg).to(device)
-elif model_name == 'ffcae':
-    model = FFCAE(**model_cfg).to(device)
 elif model_name == 'fouriernet':
     model = FourierNet(**model_cfg).to(device)
     model.patch_size = (160, 192)
-elif model_name == 'symnet':
-    model = SYMNetFull(**model_cfg).to(device)
 elif model_name == 'deepunet':
     model = DeepUNet2d(model_cfg).to(device)
 else:
@@ -89,6 +78,8 @@ dice_val = []
 initial_dice_val = 0
 test_steps = 0
 inference_times = []
+j_neg = []
+sdlogJ = []
 print('Computing metrics...')
 for moving, fixed, moving_labels, fixed_labels in tqdm(test_gen, ncols=100):
     moving = moving.to(device).float()
@@ -97,6 +88,16 @@ for moving, fixed, moving_labels, fixed_labels in tqdm(test_gen, ncols=100):
     t = time.time()
     # f_xy, X_Y = model(moving, fixed)
     f_xy = model(moving, fixed)
+    f_xy_J = torch.clone(f_xy)
+    f_xy_J[:, 0, :, :] *= 159 / 2
+    f_xy_J[:, 1, :, :] *= 191 / 2
+    J = utils.jacobian_determinant(f_xy_J.detach().cpu().numpy().squeeze(0))
+    J_neg_mask = np.where(J < 0, np.ones_like(J), np.zeros_like(J))
+    # print(J)
+    j_neg.append(100 * np.sum(J_neg_mask) / J.size)
+    f = J.reshape((-1,))
+    J_log = np.log(f[f > 0])
+    sdlogJ.append(np.std(J_log))
     _, X_Y = transform(moving, f_xy.permute(0, 2, 3, 1))
     inference_times.append(time.time() - t)
     _, warped_labels = transform(moving_labels.to(device).float(), f_xy.permute(0, 2, 3, 1), mod='nearest')   
@@ -127,18 +128,17 @@ cv2.imwrite('vis_after.png', vis_after)
 cv2.imwrite('fixed.png', fixed * 255)
 cv2.imwrite('moving.png', moving * 255)
 cv2.imwrite(f'moved_{model_name}.png', X_Y * 255)
-# wl = cv2.cvtColor(np.expand_dims(np.squeeze(wl.astype('float32'), 0), -1), cv2.COLOR_GRAY2RGB)
-# fl = cv2.cvtColor(np.expand_dims(np.squeeze(fl.astype('float32'), 0), -1), cv2.COLOR_GRAY2RGB)
-# cv2.imwrite('seg_fixed.png', (fl / fl.max() * 255))
-# cv2.imwrite('seg_warped.png', (wl / wl.max()) * 255)
-# plt.imsave('seg_fixed.png', (fl / fl.max()), cmap='terrain')
-# plt.imsave('seg_warped.png', (wl / wl.max()), cmap='terrain')
 
 mean_inference_time = sum(inference_times) / len(inference_times)
 dice_val = np.array(dice_val)
+j_neg = np.array(j_neg)
 print(f"--- Evaluation results for {model_name} ---")
 print()
 print(f'Mean initial dice: {(initial_dice_val / test_steps):.3f}')
 print(f'Mean dice after registration: {(np.mean(dice_val)):.3f}')
 print(f'Standard deviation of dice values: {(np.std(dice_val)):.3f}')
+print(f'Mean percent of folded pixels: {(np.mean(j_neg)):.3f}')
+print(f'Std of percent of folded pixels: {(np.std(j_neg)):.3f}')
+print(f'Mean sdlogJ: {(np.mean(np.array(sdlogJ))):.3f}')
+print(f'Std sdlogJ: {(np.std(np.array(sdlogJ))):.3f}')
 print(f'Mean inference time: {(mean_inference_time):.3f} seconds')

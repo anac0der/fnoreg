@@ -12,9 +12,6 @@ import time
 from fno import MyFNO, FNOReg3d
 import argparse
 import json
-from plot_utils import plotter, dft_amplitude
-import cv2
-import matplotlib.pyplot as plt
 import utils
 
 parser = argparse.ArgumentParser()
@@ -81,6 +78,8 @@ dice_val = []
 initial_dice_val = 0
 test_steps = 0
 inference_times = []
+j_neg = []
+sdlogJ = []
 print('Computing metrics...')
 for moving, fixed, moving_labels, fixed_labels in tqdm(test_gen, ncols=100):
     moving = moving.to(device).float()
@@ -89,6 +88,16 @@ for moving, fixed, moving_labels, fixed_labels in tqdm(test_gen, ncols=100):
     t = time.time()
     # f_xy, X_Y = model(moving, fixed)
     f_xy = model(moving, fixed)
+    f_xy_J = torch.clone(f_xy)
+    f_xy_J[:, 0, :, :] *= 159 / 2
+    f_xy_J[:, 1, :, :] *= 191 / 2
+    J = utils.jacobian_determinant_3d(f_xy_J.detach().cpu().numpy().squeeze(0))
+    J_neg_mask = np.where(J < 0, np.ones_like(J), np.zeros_like(J))
+    # print(J)
+    j_neg.append(100 * np.sum(J_neg_mask) / J.size)
+    f = J.reshape((-1,))
+    J_log = np.log(f[f > 0])
+    sdlogJ.append(np.std(J_log))
     _, X_Y = transform(moving, f_xy.permute(0, 2, 3, 4, 1))
     inference_times.append(time.time() - t)
     _, warped_labels = transform(moving_labels.to(device).float(), f_xy.permute(0, 2, 3, 4, 1), mod='nearest')   
@@ -104,9 +113,14 @@ for moving, fixed, moving_labels, fixed_labels in tqdm(test_gen, ncols=100):
 
 mean_inference_time = sum(inference_times) / len(inference_times)
 dice_val = np.array(dice_val)
+j_neg = np.array(j_neg)
 print(f"--- Evaluation results for {model_name} ---")
 print()
 print(f'Mean initial dice: {(initial_dice_val / test_steps):.3f}')
 print(f'Mean dice after registration: {(np.mean(dice_val)):.3f}')
 print(f'Standard deviation of dice values: {(np.std(dice_val)):.3f}')
+print(f'Mean percent of folded pixels: {(np.mean(j_neg)):.3f}')
+print(f'Std of percent of folded pixels: {(np.std(j_neg)):.3f}')
+print(f'Mean sdlogJ: {(np.mean(np.array(sdlogJ))):.3f}')
+print(f'Std sdlogJ: {(np.std(np.array(sdlogJ))):.3f}')
 print(f'Mean inference time: {(mean_inference_time):.3f} seconds')

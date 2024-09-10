@@ -1,7 +1,6 @@
 import torch 
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 class SYMNet3d(nn.Module):
     def __init__(self, in_channel, n_classes, start_channel):
@@ -36,33 +35,11 @@ class SYMNet3d(nn.Module):
                                   stride=1, bias=bias_opt)
         self.r_dc8 = self.encoder(self.start_channel * 2, self.start_channel * 2, kernel_size=3, stride=1, bias=bias_opt)
         self.rr_dc9 = self.outputs(self.start_channel * 2, self.n_classes, kernel_size=3, stride=1, padding=1, bias=False)
-        # self.r_dc10 = self.outputs(self.start_channel * 2, self.n_classes, kernel_size=3, stride=1, padding=1, bias=False)
              
         self.r_up1 = self.decoder(self.start_channel * 8, self.start_channel * 8)
         self.r_up2 = self.decoder(self.start_channel * 4, self.start_channel * 4)
         self.r_up3 = self.decoder(self.start_channel * 2, self.start_channel * 2)
         self.r_up4 = self.decoder(self.start_channel * 2, self.start_channel * 2)
-        
-
-        # self.i_dc1 = self.encoder(self.start_channel * 8 + self.start_channel * 8, self.start_channel * 8, kernel_size=3,
-                                  # stride=1, bias=bias_opt)
-        # self.i_dc2 = self.encoder(self.start_channel * 8, self.start_channel * 4, kernel_size=3, stride=1, bias=bias_opt)
-        # self.i_dc3 = self.encoder(self.start_channel * 4 + self.start_channel * 4, self.start_channel * 4, kernel_size=3,
-                                  # stride=1, bias=bias_opt)
-        # self.i_dc4 = self.encoder(self.start_channel * 4, self.start_channel * 2, kernel_size=3, stride=1, bias=bias_opt)
-        # self.i_dc5 = self.encoder(self.start_channel * 2 + self.start_channel * 2, self.start_channel * 4, kernel_size=3,
-                                  # stride=1, bias=bias_opt)
-        # self.i_dc6 = self.encoder(self.start_channel * 4, self.start_channel * 2, kernel_size=3, stride=1, bias=bias_opt)
-        # self.i_dc7 = self.encoder(self.start_channel * 2 + self.start_channel * 1, self.start_channel * 2, kernel_size=3,
-                                  # stride=1, bias=bias_opt)
-        # self.i_dc8 = self.encoder(self.start_channel * 2, self.start_channel * 2, kernel_size=3, stride=1, bias=bias_opt)
-        # self.ii_dc9 = self.outputs(self.start_channel * 2, self.n_classes, kernel_size=3, stride=1, padding=1, bias=False)
-        # self.i_dc10 = self.outputs(self.start_channel * 2, self.n_classes, kernel_size=3, stride=1, padding=1, bias=False)
-             
-        # self.i_up1 = self.decoder(self.start_channel * 8, self.start_channel * 8)
-        # self.i_up2 = self.decoder(self.start_channel * 4, self.start_channel * 4)
-        # self.i_up3 = self.decoder(self.start_channel * 2, self.start_channel * 2)
-        # self.i_up4 = self.decoder(self.start_channel * 2, self.start_channel * 2)
 
     def encoder(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1,
                 bias=False, batchnorm=True):
@@ -128,41 +105,7 @@ class SYMNet3d(nn.Module):
         r_d1 = self.r_dc3(r_d1)
         r_d1 = self.r_dc4(r_d1)
 
-        # r_d2 = torch.cat((self.r_up3(r_d1), e1), 1)
-
-        # r_d2 = self.r_dc5(r_d2)
-        # r_d2 = self.r_dc6(r_d2)
-
-        # r_d3 = torch.cat((self.r_up4(r_d2), e0), 1)
-        # r_d3 = self.r_dc7(r_d3)
-        # r_d3 = self.r_dc8(r_d3)
-
-        # r_xy = self.r_dc9(r_d3)
-        # print('r_d2.shape   ', r_d2.shape)
         f_r = self.rr_dc9(r_d1)
-        
-
-        # i_d0 = torch.cat((self.i_up1(e4), e3), 1)
-
-        # i_d0 = self.i_dc1(i_d0)
-        # i_d0 = self.i_dc2(i_d0)
-
-        # i_d1 = torch.cat((self.i_up2(i_d0), e2), 1)
-
-        # i_d1 = self.i_dc3(i_d1)
-        # i_d1 = self.i_dc4(i_d1)
-
-        # i_d2 = torch.cat((self.i_up3(i_d1), e1), 1)
-
-        # i_d2 = self.i_dc5(i_d2)
-        # i_d2 = self.i_dc6(i_d2)
-
-        # i_d3 = torch.cat((self.i_up4(i_d2), e0), 1)
-        # i_d3 = self.i_dc7(i_d3)
-        # i_d3 = self.i_dc8(i_d3)
-
-        # i_xy = self.i_dc9(i_d3)
-        # f_i = self.ii_dc9(i_d1)
         
         return f_r[:,0:1,:,:,:], f_r[:,1:2,:,:,:], f_r[:,2:3,:,:,:]
     
@@ -203,25 +146,35 @@ class FourierNet3d(nn.Module):
         f_xy = self.field_from_outputs(out_1, out_2, out_3)
         return f_xy
 
-class DiceLoss3d(nn.Module):
-    """Dice loss implementation from 
-       https://github.com/junyuchen245/TransMorph_Transformer_for_Medical_Image_Registration/blob/main/OASIS/TransMorph/losses.py#L270"""
-
-    def __init__(self, num_class=36):
-        super().__init__()
-        self.num_class = num_class
-
-    def forward(self, y_true, y_pred):
-        y_true = nn.functional.one_hot(y_true, num_classes=self.num_class)
-        y_true = torch.squeeze(y_true, 1)
-        y_true = y_true.permute(0, 4, 1, 2, 3).contiguous()
-        intersection = y_pred * y_true
-        intersection = intersection.sum(dim=[2, 3, 4])
-        union = torch.pow(y_pred, 2).sum(dim=[2, 3, 4]) + torch.pow(y_true, 2).sum(dim=[2, 3, 4])
-        dsc = (2.*intersection) / (union + 1e-5)
-        dsc = (1-torch.mean(dsc))
-        return dsc
-
+class SpatialTransform3d(nn.Module):
+    def __init__(self):
+        super(SpatialTransform3d, self).__init__()
+    def forward(self, mov_image, flow, mod = 'bilinear'):
+        d2, h2, w2 = mov_image.shape[-3:]
+        grid_d, grid_h, grid_w = torch.meshgrid([torch.linspace(-1, 1, d2), torch.linspace(-1, 1, h2), torch.linspace(-1, 1, w2)])
+        grid_h = grid_h.to(flow.device).float()
+        grid_d = grid_d.to(flow.device).float()
+        grid_w = grid_w.to(flow.device).float()
+        grid_d = nn.Parameter(grid_d, requires_grad=False)
+        grid_w = nn.Parameter(grid_w, requires_grad=False)
+        grid_h = nn.Parameter(grid_h, requires_grad=False)
+        flow_d = flow[:,:,:,:,0]
+        flow_h = flow[:,:,:,:,1]
+        flow_w = flow[:,:,:,:,2]
+        #Softsign
+        #disp_d = (grid_d + (flow_d * 2 / d2)).squeeze(1)
+        #disp_h = (grid_h + (flow_h * 2 / h2)).squeeze(1)
+        #disp_w = (grid_w + (flow_w * 2 / w2)).squeeze(1)
+        
+        # Remove Channel Dimension
+        disp_d = (grid_d + (flow_d)).squeeze(1)
+        disp_h = (grid_h + (flow_h)).squeeze(1)
+        disp_w = (grid_w + (flow_w)).squeeze(1)
+        sample_grid = torch.stack((disp_w, disp_h, disp_d), 4)  # shape (N, D, H, W, 3)
+        warped = torch.nn.functional.grid_sample(mov_image, sample_grid, mode = mod, align_corners = True)
+        
+        return sample_grid, warped
+    
 class DeepUNet3d(nn.Module):
     def __init__(
             self,
@@ -334,4 +287,4 @@ class ConvResBlock3d(nn.Module):
         x_in = self.conv1(x_in)
         x_in = self.conv2(x_in)
         x_in = self.ch_increase(x_in)
-        return x_in + self.rescaling(x)       
+        return x_in + self.rescaling(x)  

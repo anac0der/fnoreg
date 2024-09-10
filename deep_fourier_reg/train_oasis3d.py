@@ -7,6 +7,7 @@ import torch.utils.data as Data
 from torch.utils.tensorboard import SummaryWriter
 from models import *
 from models_3d import *
+from losses import * 
 from fno import MyFNO,FNOReg3d
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -17,9 +18,9 @@ import re
 
 torch.manual_seed(2002)
 
-def adjust_learning_rate(optimizer, epoch, MAX_EPOCHES, INIT_LR, power=0.9):
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = round(INIT_LR * np.power( 1 - (epoch) / MAX_EPOCHES ,power),8)
+# def adjust_learning_rate(optimizer, epoch, MAX_EPOCHES, INIT_LR, power=0.9):
+#     for param_group in optimizer.param_groups:
+#         param_group['lr'] = round(INIT_LR * np.power(1 - (epoch) / MAX_EPOCHES, power), 8)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu_num', type=int,  default=0, help='GPU number')
@@ -88,7 +89,7 @@ if train_config['lr_scheduler']:
     if name == "step":
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, **sch_params)
 else:
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10 ** 5, gamma=1)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10 ** 8, gamma=1) # constant LR on all training time
 
 seed = 2002
 bs = train_config['batch_size']
@@ -99,7 +100,6 @@ val_gen = Data.DataLoader(dataset=val, batch_size=bs, shuffle=False, num_workers
 reg_param = train_config['reg_param']
 seg_param = train_config['seg_param']
 boundary_param = train_config['boundary_param']
-save = True
 train_losses = []
 val_losses = []
 dice_progress = []
@@ -146,15 +146,12 @@ if args.exp_num >= 0 and args.ckpt_epoch >= 0:
 
 writer = SummaryWriter(log_dir=os.path.join(exp_folder_name, "./logs"))
 size = (args.size, int((args.size * 192) / 160), int((args.size * 224) / 160))
-# resize_transform = transforms.Resize(size=size)
-# resize_labels_transform = transforms.Resize(size=size, interpolation=transforms.InterpolationMode.NEAREST)
 for epoch in range(init_epoch, train_config['epochs']):
     loss_train = 0
     model.train()
     print(f'Epoch {epoch} started...')
     train_steps = 0  
     for moving, fixed, moving_labels, fixed_labels in tqdm(train_gen, ncols=100):
-        # adjust_learning_rate(optimizer, epoch, train_config['epochs'], train_config['lr'])
         moving = torch.nn.functional.interpolate(moving, size=size, mode='trilinear')
         fixed = torch.nn.functional.interpolate(fixed, size=size, mode='trilinear')
         moving_labels = torch.nn.functional.interpolate(moving_labels, size=size, mode='nearest')
@@ -163,7 +160,6 @@ for epoch in range(init_epoch, train_config['epochs']):
         fixed = fixed.cuda().float() 
         moving_labels = moving_labels.cuda()
         fixed_labels = fixed_labels.cuda()
-        # f_xy, X_Y = model(moving, fixed)
         f_xy = model(moving, fixed)
 
         _, X_Y = transform(moving, f_xy.permute(0, 2, 3, 4, 1))
@@ -175,12 +171,10 @@ for epoch in range(init_epoch, train_config['epochs']):
         _, warp_labels = transform(moving_labels.float(), f_xy.permute(0, 2, 3, 4, 1))
 
         loss1 = loss_similarity(fixed, X_Y)
-        loss5, dx, dy, dz = loss_smooth(f_xy)
+        loss5, _, _, _ = loss_smooth(f_xy)
         dice_loss = loss_seg(fixed_labels.long(), warp_labels)
-        # boundary_loss = bloss(dx, dy, dz)
         
         loss = loss1 + reg_param * loss5 + seg_param * dice_loss
-        # print(loss)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -210,7 +204,6 @@ for epoch in range(init_epoch, train_config['epochs']):
             moving_labels = moving_labels.cuda()
             fixed_labels = fixed_labels.cuda()
 
-            # f_xy, X_Y = model(moving, fixed)
             f_xy = model(moving, fixed)
             _, X_Y = transform(moving, f_xy.permute(0, 2, 3, 4, 1))
             _, warped_labels = transform(moving_labels.cuda().float(), f_xy.permute(0, 2, 3, 4, 1), mod='nearest')   
@@ -218,7 +211,7 @@ for epoch in range(init_epoch, train_config['epochs']):
                 dice = utils.dice(warped_labels[i].detach().cpu().numpy().copy(), fixed_labels[i].detach().cpu().numpy().copy())
                 dice_val += dice
             loss1 = loss_similarity(fixed, X_Y)
-            loss5, dx, dy, dz = loss_smooth(f_xy)
+            loss5, _, _, _ = loss_smooth(f_xy)
 
             moving_labels = nn.functional.one_hot(moving_labels.long(), num_classes=36)
             moving_labels = torch.squeeze(moving_labels, 1)
@@ -227,7 +220,6 @@ for epoch in range(init_epoch, train_config['epochs']):
             _, warp_labels = transform(moving_labels.float(), f_xy.permute(0, 2, 3, 4, 1))
 
             dice_loss = loss_seg(fixed_labels.long(), warp_labels)
-            # boundary_loss = bloss(dx, dy, dz)
             
             loss = loss1 + reg_param * loss5 + seg_param * dice_loss
             loss_val += loss.item()
@@ -255,7 +247,6 @@ loss_plot_name = os.path.join(exp_folder_name, 'dice_plot.png')
 plt.plot(dice_progress, label='dice')
 plt.xlabel('Epoch number')
 plt.ylabel(f'Dice on validation')
-# plt.ylim((-1, 1))
 plt.legend()
 
 plt.savefig(loss_plot_name)

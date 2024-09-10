@@ -144,26 +144,6 @@ class SpectralTransform(torch.nn.Module):
 
 
 class FastFourierConvolution(torch.nn.Module):
-    """Implements FFC block.
-
-    Divides Tensor in two branches: local and global. Local branch performs
-    convolutions and global branch applies Spectral Transform layer.
-    After performing transforms in local and global branches outputs are passed through BatchNorm + ReLU
-    and eventually concatenated. Based on proportion of input and output global channels if the number is equal
-    to zero respective blocks are replaced by Identity Transform.
-    For clarity refer to original paper.
-
-    Attributes:
-        local_in_channels: # input channels for l2l and l2g convs
-        local_out_channels: # output channels for l2l and g2l convs
-        global_in_channels: # input channels for g2l and g2g convs
-        global_out_channels: # output_channels for l2g and g2g convs
-        l2l_layer: local to local Convolution
-        l2g_layer: local to global Convolution
-        g2l_layer: global to local Convolution
-        g2g_layer: global to global Spectral Transform
-
-    """
 
     def __init__(
         self,
@@ -180,19 +160,7 @@ class FastFourierConvolution(torch.nn.Module):
         activation=nn.ReLU(True),
         use_only_freq: bool = False,
     ):
-        """Inits FFC module.
-
-        Args:
-            in_channels: total channels of tensor before dividing into local and global
-            alpha_in:
-                proportion of global channels as input
-            alpha_out:
-                proportion of global channels as output
-            use_only_freq:
-                controls dimensionality of fft in Fourier Unit. If false uses 2D fft in Fourier Unit affecting both
-                frequency and time dimensions, otherwise applies 1D FFT only to frequency dimension
-
-        """
+        
         super().__init__()
         self.global_in_channels = int(in_channels * alpha_in)
         self.local_in_channels = in_channels - self.global_in_channels
@@ -530,4 +498,3 @@ class STResNetBlock3d(torch.nn.Module):
         out = self.st1(x)
         out = self.st2(out)
         return x + out
-

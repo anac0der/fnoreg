@@ -6,9 +6,9 @@ import torch
 import torch.utils.data as Data
 from torch.utils.tensorboard import SummaryWriter
 from models import *
+from losses import * 
 from fourier_models import FFCUnet,FFCAE
-from fno import MyFNO
-from neuralop.utils import count_params
+from fno import MyFNO, FNOReg
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -59,14 +59,10 @@ if model_name == 'ffcunet':
     model = FFCUnet(model_cfg).cuda()
 elif model_name == 'fno':
     model = MyFNO(model_cfg).cuda()
-# elif model_name == 'convfno':
-#     model = ConvFNO(model_cfg).cuda()
-elif model_name == 'ffcae':
-    model = FFCAE(**model_cfg).cuda()
+elif model_name == 'convfno':
+    model = FNOReg(model_cfg).cuda()
 elif model_name == 'fouriernet':
     model = FourierNet(**model_cfg).cuda()
-elif model_name == 'symnet':
-    model = SYMNetFull(**model_cfg).cuda()
 elif model_name == 'deepunet':
     model = DeepUNet2d(model_cfg).cuda()
 else:
@@ -88,7 +84,7 @@ if train_config['lr_scheduler']:
     if name == "step":
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, **sch_params)
 else:
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10 ** 5, gamma=1)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10 ** 8, gamma=1) # constant LR on all training time
 
 seed = 2002
 bs = train_config['batch_size']
@@ -97,8 +93,6 @@ val = dataloaders.ValidationOasis2d(list(range(201, 213)), OASIS_PATH, oasis_fol
 train_gen = Data.DataLoader(dataset=train, batch_size=bs, shuffle=True, num_workers=4, pin_memory = True)
 val_gen = Data.DataLoader(dataset=val, batch_size=bs, shuffle=False, num_workers=2, pin_memory = True)
 reg_param = train_config['reg_param']
-boundary_param = train_config['boundary_param']
-save = True
 train_losses = []
 val_losses = []
 dice_progress = []
@@ -150,8 +144,6 @@ resize_labels_transform = transforms.Resize(size=size, interpolation=transforms.
 for epoch in range(init_epoch, train_config['epochs']):
     loss_train = 0
     model.train()
-    # train_gen = utils.Datagen(train_config['steps_per_epoch'], fixed_train, moving_train, params, seed=seed, batch_size=bs)
-    # val_gen = utils.Datagen(train_config['validation_steps'], fixed_val, moving_val, params, seed=seed, batch_size=bs)
     print(f'Epoch {epoch} started...')
     train_steps = 0 
     for moving, fixed in tqdm(train_gen, ncols=100):
@@ -159,21 +151,12 @@ for epoch in range(init_epoch, train_config['epochs']):
         fixed = resize_transform(fixed)
         moving = moving.cuda().float()
         fixed = fixed.cuda().float()  
-        # f_xy, X_Y = model(moving, fixed)
         f_xy = model(moving, fixed)
         _, X_Y = transform(moving, f_xy.permute(0, 2, 3, 1))
         loss1 = loss_similarity(fixed, X_Y)
-        loss5, dx, dz = loss_smooth(f_xy)
-        top_boundary = dx[:, :, 0, :]
-        bottom_boundary = dx[:, :, -1, :]
-        left_boundary = dz[:, :, :, 0]
-        right_boundary = dz[:, :, :, -1]
-        boundary = torch.cat([top_boundary, bottom_boundary, left_boundary, right_boundary], dim=-1)
-        boundary_sq  = boundary * boundary
-        boundary_loss = torch.mean(torch.sum(boundary_sq, dim=1))
+        loss5, _, _ = loss_smooth(f_xy)
         
-        loss = loss1 + reg_param * loss5 + boundary_param * boundary_loss
-        # print(loss)
+        loss = loss1 + reg_param * loss5
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -201,26 +184,16 @@ for epoch in range(init_epoch, train_config['epochs']):
             moving = moving.cuda().float()
             fixed = fixed.cuda().float()
 
-            # f_xy, X_Y = model(moving, fixed)
             f_xy = model(moving, fixed)
-            # f_xy = net(torch.cat([moving, fixed], 1))
             _, X_Y = transform(moving, f_xy.permute(0, 2, 3, 1))
             _, warped_labels = transform(moving_labels.cuda().float(), f_xy.permute(0, 2, 3, 1), mod='nearest')   
             for i in range(warped_labels.shape[0]):
                 dice = utils.dice(warped_labels[i].detach().cpu().numpy().copy(), fixed_labels[i].detach().cpu().numpy().copy())
                 dice_val += dice
             loss1 = loss_similarity(fixed, X_Y)
-            loss5, dx, dz = loss_smooth(f_xy)
-
-            top_boundary = dx[:, :, 0, :]
-            bottom_boundary = dx[:, :, -1, :]
-            left_boundary = dz[:, :, :, 0]
-            right_boundary = dz[:, :, :, -1]
-            boundary = torch.cat([top_boundary, bottom_boundary, left_boundary, right_boundary], dim=-1)
-            boundary *= boundary
-            boundary = torch.mean(torch.sum(boundary, dim=1))
+            loss5, _, _ = loss_smooth(f_xy)
         
-            loss = loss1 + reg_param * loss5 + boundary_param * boundary
+            loss = loss1 + reg_param * loss5
             loss_val += loss.item()
             val_steps += 1
     
@@ -246,7 +219,6 @@ loss_plot_name = os.path.join(exp_folder_name, 'dice_plot.png')
 plt.plot(dice_progress, label='dice')
 plt.xlabel('Epoch number')
 plt.ylabel(f'Dice on validation')
-# plt.ylim((-1, 1))
 plt.legend()
 
 plt.savefig(loss_plot_name)
