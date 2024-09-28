@@ -1,0 +1,36 @@
+{
+  "dataset_size": [
+    481
+  ],
+  "downsample_size": [
+    1024
+  ],
+  "patch_size": [
+    256
+  ],
+    "model_name": "TransMorph",
+    "train_config": [{
+        "lr": 0.0001,
+        "reg_param": 0.01,
+        "batch_size": 8,
+        "epochs": 80,
+        "lr_scheduler": false,
+        "lr_scheduler_params": {
+            "step": {
+                "step_size": 12,
+                "gamma": 0.5
+            }
+        },
+        "ckpt_freq": 10
+    }],
+    "exp_config": [{
+        "description": "training TransMorph"
+    }],
+    "dataset_path": "/data/datasets/060523_Affine_registered_4096_png",
+    "landmarks_path": "/data/datasets/060523_Affine_registered_4096",
+    "dataset_csv_path": "/data/dataset_medium.csv",
+    "exp_path": "/data/baseline_models/transmorph/experiments",
+    "weights_path": "/data/baseline_models/transmorph/experiments",
+    "oasis_path": "/data/datasets/oasis_1_2d",
+    "oasis_folders_path": "/data/datasets/oasis_1_2d/subjects.txt"
+}

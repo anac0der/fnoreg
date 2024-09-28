@@ -1,0 +1,24 @@
+{
+    "model_name": "vxm-1",
+    "train_config": [{
+        "lr": 0.0001,
+        "reg_param": 0.01,
+        "dice_param": 0.01,
+        "batch_size": 1,
+        "epochs": 500,
+        "lr_scheduler": false,
+        "lr_scheduler_params": {
+            "step": {
+                "step_size": 12,
+                "gamma": 0.5
+            }
+        },
+        "ckpt_freq": 50
+    }],
+    "exp_config": [{
+        "description": "training VoxelMorph-Huge with size (160, 192, 224)"
+    }],
+    "exp_path": "/data/baseline_models/transmorph/experiments",
+    "oasis_path": "/data/datasets/oasis_1_3d",
+    "oasis_folders_path": "/data/datasets/oasis_1_3d/subjects.txt"
+}
