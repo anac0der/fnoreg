@@ -82,6 +82,8 @@
 `baseline_models/transmorph/evaluate_vxm_oasis.py` for VoxelMorph and VoxelMorph-Huge;
 `baseline_models/transmorph/evaluate_transmorph_oasis.py` for TransMorph.
 
+TODO
+
 ### Figure 4
 * Run evaluation scripts on full resolution for Fourier-Net (32 channels), Vxm-Large, Vxm-Huge, TransMorph, FNO (large), FNOReg (large)
 * Move all files `plot_*.png` to folder with script `paper_plot_script.py`
