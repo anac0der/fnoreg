@@ -13,7 +13,10 @@ pip install -r requirements.txt
 
 ## Dataset downloading 
 
-`HERE SMTH ABOUT DATASET LOADING`
+We used the preprocessed version of [OASIS-1 dataset](https://sites.wustl.edu/oasisbrains/home/oasis-1/) from [Adrian Dalca repository](https://github.com/adalca/medical-datasets/blob/master/neurite-oasis.md).
+To train our models on this dataset you need to do the following steps:
+* Download 2D and 3D data from the specified source;
+* Update paths to the datasets in corresponding configuration files (with regexp `params_*.json`, fields `oasis_path` for path to dataset folder and `oasis_folder_path` for path to file `subjects.txt`).
 
 ## Launching experiments and reproducing the results
 
@@ -29,7 +32,7 @@ To get further instructions about reproduction of metrics values in our paper, y
 
 ***Training scripts***: `train_*.py`, in folder `/deep_fourier_reg` for FNO-based models, VoxelMorph-Large and Fourier-Net and in folder `/baseline_models/transmorph` for VoxelMorph, VoxelMorph-Huge and TransMorph.
 
-To launch the model training, firstly fill in the corresponding config file (with regexp `params_*.json`) and then run the following command:
+To launch the model training, firstly fill in the corresponding config file and then run the following command:
 ```
 python3 train_*.py --gpu_num gpu_num --size size
 ```
@@ -46,4 +49,8 @@ Here:
 * `gpu_num` is the same as in the training scripts;
 * `ckpt_epoch` is the number of epoch from which you want to download the checkpoint. This argument should be omitted if you want to evaluate the final model (model with weights after all epochs).
 
+## Acknowledgements
+Hoopes et al. [Learning the Effect of Registration Hyperparameters with HyperMorph](https://arxiv.org/abs/2203.16680) - for providing preprocessed data collection;
 
+Chen, Junyu, et al. [TransMorph: Transformer for Unsupervised Medical Image Registration](https://www.sciencedirect.com/science/article/pii/S1361841522002432)  - 
+ we used the source code of this paper for training VoxelMorph and TransMorph.
