@@ -7,7 +7,6 @@ import torch.utils.data as Data
 from torch.utils.tensorboard import SummaryWriter
 from models import *
 from losses import * 
-from fourier_models import FFCUnet,FFCAE
 from fno import MyFNO, FNOReg
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -55,9 +54,7 @@ else:
     train_config = exp_metadata['train_config']
     exp_meta_desc = exp_metadata['description']
 
-if model_name == 'ffcunet':
-    model = FFCUnet(model_cfg).cuda()
-elif model_name == 'fno':
+if model_name == 'fno':
     model = MyFNO(model_cfg).cuda()
 elif model_name == 'convfno':
     model = FNOReg(model_cfg).cuda()
@@ -208,7 +205,7 @@ for epoch in range(init_epoch, train_config['epochs']):
         writer.add_scalar("Loss/val", loss_val, epoch)
         writer.add_scalar("Dice/val", dice_val, epoch)
         print(f'Exp {n}: Epoch {epoch}, train loss: {(loss_train):5f}, val loss: {(loss_val):5f}, val dice: {(dice_val):5f}, learning rate: {scheduler.get_last_lr()[0]}')
-
+print(f'reg_param: {reg_param}')
 writer.flush()
 writer.close()
 
