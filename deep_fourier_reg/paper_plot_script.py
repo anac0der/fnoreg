@@ -13,8 +13,10 @@ hsep = 255 * np.ones((image.shape[0], int(fixed.shape[-3] * 0.01), 3))
 img_list = [
     'plot_fouriernet.png',
     'plot_deepunet.png',
+    'plot_vxm-huge.png',
+    'plot_TransMorph.png',
     'plot_fno.png',
-    'plot_fnoreg.png'    
+    'plot_convfno.png'    
 ]
 
 for img in img_list:

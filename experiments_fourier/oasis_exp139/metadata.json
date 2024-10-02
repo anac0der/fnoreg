@@ -1,0 +1,28 @@
+{
+    "description": "training DeepUnet2d on full resolution",
+    "start time": "2024-04-01 22:00:41.963626",
+    "model_config": {
+        "in_ch": 2,
+        "start_ch": 32,
+        "out_ch": 2,
+        "enc_blocks": 4,
+        "latent_space_blocks": 1,
+        "enc_res_blocks": 2,
+        "skip_conn": true
+    },
+    "model_name": "deepunet",
+    "train_config": {
+        "lr": 0.0001,
+        "reg_param": 0.01,
+        "boundary_param": 0,
+        "batch_size": 8,
+        "epochs": 80,
+        "lr_scheduler": false,
+        "lr_scheduler_params": {
+            "step": {
+                "step_size": 30,
+                "gamma": 0.2
+            }
+        }
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "description": "training VoxelMorph with size (160, 192)",
+    "start time": "2024-04-03 21:17:42.735547",
+    "model_name": "vxm-1",
+    "train_config": {
+        "lr": 0.0001,
+        "reg_param": 0.01,
+        "batch_size": 8,
+        "epochs": 80,
+        "lr_scheduler": false,
+        "lr_scheduler_params": {
+            "step": {
+                "step_size": 12,
+                "gamma": 0.5
+            }
+        },
+        "ckpt_freq": 10
+    }
+}

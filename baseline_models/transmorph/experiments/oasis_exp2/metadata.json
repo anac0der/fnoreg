@@ -1,0 +1,19 @@
+{
+    "description": "training VoxelMorph-Huge",
+    "start time": "2023-12-07 09:00:03.618257",
+    "model_name": "vxm-huge",
+    "train_config": {
+        "lr": 0.0001,
+        "reg_param": 0.01,
+        "batch_size": 8,
+        "epochs": 80,
+        "lr_scheduler": false,
+        "lr_scheduler_params": {
+            "step": {
+                "step_size": 12,
+                "gamma": 0.5
+            }
+        },
+        "ckpt_freq": 10
+    }
+}

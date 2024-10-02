@@ -1,0 +1,28 @@
+{
+    "description": "training fouriernet w/ 32 ch on (80, 96) resolution",
+    "start time": "2023-12-12 10:33:19.683511",
+    "model_config": {
+        "in_channel": 2,
+        "start_channel": 32,
+        "n_classes": 2,
+        "patch_size": [
+            80,
+            96
+        ]
+    },
+    "model_name": "fouriernet",
+    "train_config": {
+        "lr": 0.0001,
+        "reg_param": 0.01,
+        "boundary_param": 0,
+        "batch_size": 2,
+        "epochs": 20,
+        "lr_scheduler": false,
+        "lr_scheduler_params": {
+            "step": {
+                "step_size": 12,
+                "gamma": 0.5
+            }
+        }
+    }
+}

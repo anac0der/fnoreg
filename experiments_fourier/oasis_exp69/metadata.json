@@ -1,0 +1,32 @@
+{
+    "description": "training fno with size = (80, 96)",
+    "start time": "2023-12-08 22:39:09.759452",
+    "model_config": {
+        "n_modes": [
+            60,
+            72
+        ],
+        "in_channels": 2,
+        "out_channels": 2,
+        "hidden_channels": 32,
+        "projection_channels": 64,
+        "n_layers": 12,
+        "factorization": "tucker",
+        "rank": 0.42
+    },
+    "model_name": "fno",
+    "train_config": {
+        "lr": 0.0001,
+        "reg_param": 0.01,
+        "boundary_param": 1,
+        "batch_size": 8,
+        "epochs": 80,
+        "lr_scheduler": false,
+        "lr_scheduler_params": {
+            "step": {
+                "step_size": 12,
+                "gamma": 0.5
+            }
+        }
+    }
+}

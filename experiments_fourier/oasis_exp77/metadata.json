@@ -1,0 +1,33 @@
+{
+    "description": "training convfno w/ 0.25 modes and 12 layers on full resolution",
+    "start time": "2023-12-11 11:58:50.177161",
+    "model_config": {
+        "n_modes": [
+            40,
+            48
+        ],
+        "in_channels": 2,
+        "out_channels": 2,
+        "hidden_channels": 32,
+        "projection_channels": 64,
+        "n_layers": 12,
+        "factorization": "tucker",
+        "rank": 0.42,
+        "alpha": 1
+    },
+    "model_name": "convfno",
+    "train_config": {
+        "lr": 0.0001,
+        "reg_param": 0.01,
+        "boundary_param": 1,
+        "batch_size": 8,
+        "epochs": 80,
+        "lr_scheduler": false,
+        "lr_scheduler_params": {
+            "step": {
+                "step_size": 12,
+                "gamma": 0.5
+            }
+        }
+    }
+}

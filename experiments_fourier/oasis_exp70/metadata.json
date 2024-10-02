@@ -1,0 +1,28 @@
+{
+    "description": "training fouriernet on size (80, 96)",
+    "start time": "2023-12-09 07:11:53.230113",
+    "model_config": {
+        "in_channel": 2,
+        "start_channel": 16,
+        "n_classes": 2,
+        "patch_size": [
+            80,
+            96
+        ]
+    },
+    "model_name": "fouriernet",
+    "train_config": {
+        "lr": 0.0001,
+        "reg_param": 0.01,
+        "boundary_param": 0,
+        "batch_size": 2,
+        "epochs": 20,
+        "lr_scheduler": false,
+        "lr_scheduler_params": {
+            "step": {
+                "step_size": 12,
+                "gamma": 0.5
+            }
+        }
+    }
+}
