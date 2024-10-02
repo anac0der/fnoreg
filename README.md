@@ -26,7 +26,7 @@ After installation of all required dependencies and downloading the data, you ne
 ./download_ckpt.sh
 ```
 
-To get further instructions about reproduction of metrics values in our paper, you can read `instructions_to_reproduce.txt`.
+To get further instructions about reproduction of metrics values in our paper, you can read `instructions_to_reproduce.md`.
 
 **Brief explanation of main commands** (if you want to launch your own experiments):
 
