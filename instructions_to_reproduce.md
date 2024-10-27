@@ -78,9 +78,9 @@
 ### Table 2 and Table 4
 *Scripts*: 
 
-`/deep_fourier_reg/evaluate_oasis.py` for all models, except VoxelMorph, Voxelmorph-Huge and TransMorph;
-`baseline_models/transmorph/evaluate_vxm_oasis.py` for VoxelMorph and VoxelMorph-Huge;
-`baseline_models/transmorph/evaluate_transmorph_oasis.py` for TransMorph.
+`/deep_fourier_reg/evaluate_oasis3d.py` for all models, except VoxelMorph, Voxelmorph-Huge and TransMorph;
+`baseline_models/transmorph/evaluate_vxm_oasis3d.py` for VoxelMorph and VoxelMorph-Huge;
+`baseline_models/transmorph/evaluate_transmorph_oasis3d.py` for TransMorph.
 
 TODO
 
