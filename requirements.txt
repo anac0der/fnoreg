@@ -74,6 +74,7 @@ timm==1.0.9
 tomli==2.0.1
 torch==2.1.0+cu118
 torch-harmonics==0.6.5
+--extra-index-url https://download.pytorch.org/whl/cu118
 torchaudio==2.1.0+cu118
 torchvision==0.16.0+cu118
 tqdm==4.66.5
@@ -85,3 +86,7 @@ wandb==0.18.1
 wcwidth==0.2.13
 Werkzeug==3.0.4
 zarr==2.18.3
+PySocks==1.7.1 
+beautifulsoup4==4.12.3 
+gdown==5.2.0 
+soupsieve==2.6

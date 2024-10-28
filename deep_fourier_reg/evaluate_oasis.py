@@ -59,8 +59,12 @@ else:
 utils.count_parameters(model)
 
 if args.ckpt_epoch < 0:
-    weights_path = os.path.join(exp_folder_name, 'weights.pth')
-    model.load_state_dict(torch.load(weights_path))
+    try:
+        weights_path = os.path.join(exp_folder_name, 'weights.pth')
+        model.load_state_dict(torch.load(weights_path))
+    except Exception:
+        weights_path = os.path.join(exp_folder_name, 'weights.pt')
+        model.load_state_dict(torch.load(weights_path)['model_state_dict'])
 else:
     weights_path = os.path.join(exp_folder_name, f'ckpt_epoch{args.ckpt_epoch}.pt')
     ckpt = torch.load(weights_path)
