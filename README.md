@@ -20,11 +20,8 @@ To train our models on this dataset you need to do the following steps:
 
 ## Launching experiments and reproducing the results
 
-After installation of all required dependencies and downloading the data, you need to download model checkpoints in order to reproduce results from our paper. It can be done by running 
-`download_ckpt.sh` script:
-```
-./download_ckpt.sh
-```
+After installation of all required dependencies and downloading the data, you need to download model checkpoints in order to reproduce results from our paper. It can be done by running bash scripts './download_ckpt.sh', './download_ckpt_3d.sh', './download_ckpt_vxm_transmorph.sh', './download_ckpt_vxm_transmorph_3d.sh'.
+
 
 To get further instructions about reproduction of metrics values in our paper, you can read `instructions_to_reproduce.md`.
 
