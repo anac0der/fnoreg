@@ -25,7 +25,7 @@
 
 * VoxelMorph-Large
 
-  Full resolution: `--exp_num 139 --ckpt_epoch 60`
+  Full resolution: `--exp_num 139`
   
   Reduced resolution: `--exp_num 140`
 
@@ -59,7 +59,7 @@
   
 * FNOReg (small)
 
-  Full resolution: `--exp_num 78 --ckpt_epoch 70`
+  Full resolution: `--exp_num 78`
   
   Reduced resolution: `--exp_num 79`
   
@@ -73,14 +73,14 @@
 
   Full resolution: `--exp_num 80`
   
-  Reduced resolution: `--exp_num 82 --ckpt_epoch 70`
+  Reduced resolution: `--exp_num 82`
 
 ### Table 2 and Table 4
 *Scripts*: 
 
-`/deep_fourier_reg/evaluate_oasis.py` for all models, except VoxelMorph, Voxelmorph-Huge and TransMorph;
-`baseline_models/transmorph/evaluate_vxm_oasis.py` for VoxelMorph and VoxelMorph-Huge;
-`baseline_models/transmorph/evaluate_transmorph_oasis.py` for TransMorph.
+`/deep_fourier_reg/evaluate_oasis3d.py` for all models, except VoxelMorph, Voxelmorph-Huge and TransMorph;
+`baseline_models/transmorph/evaluate_vxm_oasis3d.py` for VoxelMorph and VoxelMorph-Huge;
+`baseline_models/transmorph/evaluate_transmorph_oasis3d.py` for TransMorph.
 
 TODO
 

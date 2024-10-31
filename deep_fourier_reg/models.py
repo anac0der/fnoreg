@@ -1,7 +1,6 @@
 import torch 
 import torch.nn as nn
 import torch.nn.functional as F
-from deep_fourier_reg.fourier_blocks import FFCResNetBlock
 
 # Fourier-Net implementation from https://github.com/xi-jia/Fourier-Net
 
