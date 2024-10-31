@@ -82,7 +82,48 @@
 `baseline_models/transmorph/evaluate_vxm_oasis3d.py` for VoxelMorph and VoxelMorph-Huge;
 `baseline_models/transmorph/evaluate_transmorph_oasis3d.py` for TransMorph.
 
-TODO
+*Command line arguments*:
+
+* Fourier-Net (16 channels)
+
+  Full resolution: `--exp_num 23`
+  
+  Reduced resolution: `--exp_num 31`
+  
+* Fourier-Net (32 channels)
+  
+   Full resolution: `--exp_num 32`
+  
+   Reduced resolution: `--exp_num 35`
+
+* VoxelMorph
+  
+   Full resolution: `--exp_num 2`
+  
+   Reduced resolution: `--exp_num 6`
+
+* VoxelMorph-Large
+
+  Full resolution: `--exp_num 38`
+  
+  Reduced resolution: `--exp_num 39`
+
+* VoxelMorph-Huge
+  
+  Full resolution: `--exp_num 3`
+  
+  Reduced resolution: `--exp_num 5`
+
+* TransMorph
+
+  Full resolution: `--exp_num 0`
+
+* FNOReg
+  
+  Full resolution: `--exp_num 29`
+  
+  Reduced resolution: `--exp_num 27`
+
 
 ### Figure 4
 * Run evaluation scripts on full resolution for Fourier-Net (32 channels), Vxm-Large, Vxm-Huge, TransMorph, FNO (large), FNOReg (large)
