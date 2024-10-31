@@ -80,7 +80,7 @@
         "description": "training FNO on full resolution"
       } 
       ],
-    "weights_path": "/data/experiments_fourier",
+    "weights_path": "/data/fnoreg/experiments_fourier",
     "oasis_path": "/data/datasets/oasis_1_3d",
     "oasis_folders_path": "/data/datasets/oasis_1_3d/subjects.txt"
   }
