@@ -1,0 +1,30 @@
+{
+    "description": "training fouriernet on full resolution w/ 32 channels w/ seg_param = 0.01",
+    "start time": "2024-03-23 14:03:18.853841",
+    "model_config": {
+        "in_channel": 2,
+        "start_channel": 32,
+        "n_classes": 3,
+        "patch_size": [
+            160,
+            192,
+            224
+        ]
+    },
+    "model_name": "fouriernet",
+    "train_config": {
+        "lr": 0.0001,
+        "reg_param": 0.01,
+        "boundary_param": 0,
+        "seg_param": 0.01,
+        "batch_size": 1,
+        "epochs": 500,
+        "lr_scheduler": false,
+        "lr_scheduler_params": {
+            "step": {
+                "step_size": 30,
+                "gamma": 0.2
+            }
+        }
+    }
+}
