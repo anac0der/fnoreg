@@ -1,6 +1,6 @@
 # FNOReg: Resolution-Robust Medical Image Registration Method Based on Fourier Neural Operator
 
-This is an official implementation of paper FNOReg: Resolution-Robust Medical Image Registration Method Based on Fourier Neural Operator
+This is an official implementation of paper [FNOReg: Resolution-Robust Medical Image Registration Method Based on Fourier Neural Operator](https://link.springer.com/chapter/10.1007/978-3-031-78201-5_11)
 
 ## Installation
 ```
