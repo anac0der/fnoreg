@@ -3,6 +3,7 @@
 This is an official implementation of paper [FNOReg: Resolution-Robust Medical Image Registration Method Based on Fourier Neural Operator](https://link.springer.com/chapter/10.1007/978-3-031-78201-5_11)
 
 ## Installation
+We used ```python==3.10.12``` in our working environment. To install repo and all required dependencies, execute following commands.
 ```
 git clone https://github.com/anac0der/fnoreg.git
 cd fnoreg
